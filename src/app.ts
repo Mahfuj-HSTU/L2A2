@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from 'express'
 import { initDb } from './config/db'
 import { vehiclesRouter } from './modules/vehicles/vehicles.route'
 import { authRouter } from './modules/auth/auth.route'
+import { bookingRouter } from './modules/booking/booking.route'
 const app = express()
 initDb()
 app.use(express.json())
@@ -12,6 +13,7 @@ app.get('/', (req: Request, res: Response) => {
 
 app.use('/api/v1/vehicles', vehiclesRouter)
 app.use('/api/v1/auth', authRouter)
+app.use('/api/v1/bookings', bookingRouter)
 
 app.use((req: Request, res: Response) => {
   res.status(404).json({ success: false, message: 'Not Found', path: req.path })
