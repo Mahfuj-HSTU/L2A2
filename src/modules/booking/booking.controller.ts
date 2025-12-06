@@ -38,6 +38,9 @@ const createBooking = async (req: Request, res: Response) => {
       total_price,
       ...req.body
     })
+    if ('success' in result && result.success === false) {
+      return res.status(400).json(result)
+    }
     res.status(200).json({
       success: true,
       message: 'Booking created successfully',

@@ -22,6 +22,13 @@ const createBookingInDB = async (payload: Record<string, unknown>) => {
         message: 'Vehicle is already booked'
       }
     }
+    const user = await pool.query(
+      `SELECT 1 FROM users WHERE id = $1 AND role = 'customer' LIMIT 1`,
+      [customer_id]
+    )
+    if (user.rowCount === 0) {
+      return { success: false, message: 'User not found' }
+    }
     const bookingResult = await pool.query(
       `INSERT INTO bookings (customer_id, vehicle_id, rent_start_date, rent_end_date, total_price)
       VALUES ($1, $2, $3, $4, $5)
