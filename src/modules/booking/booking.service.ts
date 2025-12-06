@@ -46,6 +46,12 @@ const createBookingInDB = async (payload: Record<string, unknown>) => {
   }
 }
 
+const getAllBookingFromDB = async () => {
+  const result = await pool.query('SELECT * FROM bookings')
+  return result.rows
+}
+
 export const bookingServices = {
-  createBookingInDB
+  createBookingInDB,
+  getAllBookingFromDB
 }
