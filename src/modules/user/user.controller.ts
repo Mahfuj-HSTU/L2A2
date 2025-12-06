@@ -19,6 +19,31 @@ const getAllUsers = async (req: Request, res: Response) => {
   }
 }
 
+const updateUser = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params
+    const result = await userServices.updateUserInDB(userId as string, req.body)
+
+    if ('success' in result && result.success === false) {
+      return res.status(400).json(result)
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'User updated successfully',
+      data: result
+    })
+  } catch (error: any) {
+    console.error('Error updating user:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update user',
+      error: error.message
+    })
+  }
+}
+
 export const userController = {
-  getAllUsers
+  getAllUsers,
+  updateUser
 }
