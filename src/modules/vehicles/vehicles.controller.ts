@@ -7,7 +7,7 @@ const createVehicle = async (req: Request, res: Response) => {
     res.status(201).json({
       success: true,
       message: 'Vehicle created successfully',
-      data: result.rows[0]
+      data: result
     })
   } catch (error) {
     res
@@ -19,17 +19,17 @@ const createVehicle = async (req: Request, res: Response) => {
 const getAllVehicles = async (req: Request, res: Response) => {
   try {
     const result = await vehiclesService.getAllVehiclesFromDb()
-    if (result.rows.length === 0) {
+    if (result.length === 0) {
       return res.status(200).json({
         success: true,
         message: 'No vehicles found',
-        data: result.rows
+        data: result
       })
     }
     res.status(200).json({
       success: true,
       message: 'Vehicles retrieved successfully',
-      data: result.rows
+      data: result
     })
   } catch (error) {
     res
@@ -44,17 +44,17 @@ const getVehiclesById = async (req: Request, res: Response) => {
     const result = await vehiclesService.getVehiclesByIdFromDb(
       vehicleId as string
     )
-    if (result.rows.length === 0) {
+    if (result.length === 0) {
       return res.status(200).json({
         success: true,
         message: 'No vehicle found',
-        data: result.rows
+        data: result
       })
     }
     res.status(200).json({
       success: true,
       message: 'Vehicle retrieved successfully',
-      data: result.rows[0]
+      data: result
     })
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to fetch vehicle' })
