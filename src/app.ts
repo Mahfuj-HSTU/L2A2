@@ -1,17 +1,15 @@
 import express, { NextFunction, Request, Response } from 'express'
 import { initDb } from './config/db'
+import { vehiclesRouter } from './modules/vehicles/vehicles.route'
 const app = express()
-
-//* initial db
 initDb()
-
-// * parsing json body middleware
 app.use(express.json())
-// app.use(express.urlencoded({ extended: true })) //? for form data
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello! Welcome to Vehicle Rental System')
 })
+
+app.use('/api/v1/vehicles', vehiclesRouter)
 
 app.use((req: Request, res: Response) => {
   res.status(404).json({ success: false, message: 'Not Found', path: req.path })
