@@ -31,7 +31,25 @@ const getAllVehicles = async (req: Request, res: Response) => {
   }
 }
 
+const getVehiclesById = async (req: Request, res: Response) => {
+  const { vehicleId } = req.params
+  try {
+    const result = await vehiclesService.getVehiclesByIdFromDb(
+      vehicleId as string
+    )
+    console.log({ result })
+    res.status(200).json({
+      success: true,
+      message: 'Vehicle retrieved successfully',
+      data: result.rows[0]
+    })
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to fetch vehicle' })
+  }
+}
+
 export const vehiclesController = {
   createVehicle,
-  getAllVehicles
+  getAllVehicles,
+  getVehiclesById
 }
