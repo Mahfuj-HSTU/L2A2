@@ -54,7 +54,14 @@ const createBookingInDB = async (payload: Record<string, unknown>) => {
 }
 
 const getAllBookingFromDB = async () => {
-  const result = await pool.query('SELECT * FROM bookings')
+  const result = await pool.query(`
+    SELECT b.id,b.customer_id,b.vehicle_id,b.rent_start_date,b.rent_end_date,b.total_price,b.status, u.name AS name, u.email AS email, v.vehicle_name,v.registration_number,v.type 
+    FROM bookings b 
+    JOIN vehicles v ON v.id = b.vehicle_id 
+    JOIN users u ON u.id = b.customer_id 
+    ORDER BY b.id DESC
+  `)
+
   return result.rows
 }
 

@@ -57,13 +57,63 @@ const createBooking = async (req: Request, res: Response) => {
 }
 
 const getAllBookings = async (req: Request, res: Response) => {
+  const authUser = req.user as { id: number; role: 'admin' | 'customer' }
   try {
     const result = await bookingServices.getAllBookingFromDB()
-    res.status(200).json({
-      success: true,
-      message: 'Booking retrieved successfully',
-      data: result
-    })
+    if (authUser.role === 'customer') {
+      const userBookings = result.filter(
+        (booking) => booking.customer_id === authUser.id
+      )
+      const data = userBookings.map(
+        ({
+          customer_id,
+          name,
+          email,
+          vehicle_name,
+          registration_number,
+          type,
+          ...booking
+        }) => ({
+          ...booking,
+          vehicle: {
+            vehicle_name,
+            registration_number,
+            type
+          }
+        })
+      )
+      return res.status(200).json({
+        success: true,
+        message: 'Your bookings retrieved successfully',
+        data: data
+      })
+    } else {
+      const data = result.map(
+        ({
+          name,
+          email,
+          vehicle_name,
+          registration_number,
+          type,
+          ...booking
+        }) => ({
+          ...booking,
+          customer: {
+            name,
+            email
+          },
+          vehicle: {
+            vehicle_name,
+            registration_number
+          }
+        })
+      )
+      res.status(200).json({
+        success: true,
+        message: 'Bookings retrieved successfully',
+        data: data
+      })
+    }
   } catch (error: any) {
     console.error('Error fetching bookings:', error)
     res.status(500).json({
