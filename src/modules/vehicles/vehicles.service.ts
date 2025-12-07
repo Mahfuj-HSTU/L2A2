@@ -19,12 +19,17 @@ const createVehicleIntoDb = async (payload: Record<string, unknown>) => {
       availability_status
     ]
   )
-
+  delete result.rows[0].created_at
+  delete result.rows[0].updated_at
   return result.rows[0]
 }
 
 const getAllVehiclesFromDb = async () => {
   const result = await pool.query('SELECT * FROM vehicles')
+  result.rows.forEach((vehicle) => {
+    delete vehicle.created_at
+    delete vehicle.updated_at
+  })
   return result.rows
 }
 
@@ -33,6 +38,8 @@ const getVehiclesByIdFromDb = async (id: string) => {
   if (result.rowCount === 0) {
     result.rows[0] = []
   }
+  delete result.rows[0].created_at
+  delete result.rows[0].updated_at
   return result.rows[0]
 }
 
@@ -69,6 +76,8 @@ const updatedVehicleIntoDb = async (
     } RETURNING *`,
     values
   )
+  delete result.rows[0].created_at
+  delete result.rows[0].updated_at
 
   return result
 }

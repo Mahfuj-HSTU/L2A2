@@ -43,6 +43,10 @@ const createBookingInDB = async (payload: Record<string, unknown>) => {
       `SELECT vehicle_name, daily_rent_price FROM vehicles WHERE id = $1`,
       [vehicle_id]
     )
+    delete bookingResult.rows[0].created_at
+    delete bookingResult.rows[0].updated_at
+    delete vehicleResult.rows[0].created_at
+    delete vehicleResult.rows[0].updated_at
     return {
       ...bookingResult.rows[0],
       vehicle: vehicleResult.rows[0]
@@ -118,8 +122,9 @@ const updateBookingStatusIntoDB = async (
     queryParams.push(id)
 
     const result = await client.query(updateQuery, queryParams)
-
     await client.query('COMMIT')
+    delete result.rows[0].created_at
+    delete result.rows[0].updated_at
     return result.rows[0]
   } catch (error) {
     await client.query('ROLLBACK')

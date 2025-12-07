@@ -27,6 +27,8 @@ const registerUser = async (payload: Record<string, unknown>) => {
     [name, email, hashedPassword, phone, role]
   )
   delete result.rows[0].password
+  delete result.rows[0].created_at
+  delete result.rows[0].updated_at
   return result
 }
 
@@ -59,6 +61,8 @@ const loginUser = async (email: string, password: string) => {
     }
   )
   delete user.password
+  delete user.created_at
+  delete user.updated_at
   return { token, user }
 }
 

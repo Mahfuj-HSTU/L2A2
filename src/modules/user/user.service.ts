@@ -11,18 +11,6 @@ const getAllUsersFromDB = async () => {
   return result.rows
 }
 
-const getUserById = async (id: string) => {
-  const user = await pool.query(`SELECT * FROM users WHERE id = $1`, [id])
-  if (user.rowCount === 0) {
-    return {
-      success: false,
-      message: 'User not found',
-      error: 'User not found'
-    }
-  }
-  return user.rows[0]
-}
-
 const updateUserInDB = async (id: string, payload: Record<string, unknown>) => {
   const allowedFields = ['name', 'email', 'phone', 'role']
 
@@ -80,6 +68,5 @@ const deleteUserFromDb = async (id: number) => {
 export const userServices = {
   getAllUsersFromDB,
   updateUserInDB,
-  deleteUserFromDb,
-  getUserById
+  deleteUserFromDb
 }
