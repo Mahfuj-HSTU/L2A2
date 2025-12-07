@@ -22,7 +22,23 @@ const getAllUsers = async (req: Request, res: Response) => {
 const updateUser = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params
-    const result = await userServices.updateUserInDB(userId as string, req.body)
+    const authUser = req.user as { id: number; role: 'admin' | 'customer' }
+    console.log({ authUser })
+
+    if (
+      authUser.role === 'customer' &&
+      String(authUser.id) !== String(userId)
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: 'You are not allowed to update other users'
+      })
+    }
+    let payload = { ...req.body }
+    if (authUser.role === 'customer') {
+      delete payload.role
+    }
+    const result = await userServices.updateUserInDB(userId as string, payload)
 
     if ('success' in result && result.success === false) {
       return res.status(400).json(result)
