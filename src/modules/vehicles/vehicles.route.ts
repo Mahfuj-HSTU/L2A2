@@ -1,12 +1,17 @@
 import express from 'express'
 import { vehiclesController } from './vehicles.controller'
+import { verifyAuth } from '../../middleware/auth'
 
 const router = express.Router()
 
-router.post('/', vehiclesController.createVehicle)
+router.post('/', verifyAuth('admin'), vehiclesController.createVehicle)
 router.get('/', vehiclesController.getAllVehicles)
 router.get('/:vehicleId', vehiclesController.getVehiclesById)
-router.put('/:vehicleId', vehiclesController.updateVehicle)
-router.delete('/:vehicleId', vehiclesController.deleteVehicles)
+router.put('/:vehicleId', verifyAuth('admin'), vehiclesController.updateVehicle)
+router.delete(
+  '/:vehicleId',
+  verifyAuth('admin'),
+  vehiclesController.deleteVehicles
+)
 
 export const vehiclesRouter = router
