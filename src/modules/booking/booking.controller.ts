@@ -124,7 +124,50 @@ const getAllBookings = async (req: Request, res: Response) => {
   }
 }
 
+const updateBookingStatus = async (req: Request, res: Response) => {
+  try {
+    const { bookingId } = req.params
+    const result = await bookingServices.updateBookingStatusIntoDB(
+      bookingId as string,
+      req.body
+    )
+    if ('success' in result && result.success === false) {
+      return res.status(400).json(result)
+    }
+
+    const authUser = req.user as { id: number; role: 'admin' | 'customer' }
+    let message = 'Booking status updated successfully'
+    let responseData = result
+
+    if (authUser.role === 'customer' && req.body.status === 'cancelled') {
+      message = 'Booking cancelled successfully'
+    } else if (authUser.role === 'admin' && req.body.status === 'returned') {
+      message = 'Booking marked as returned. Vehicle is now available'
+      responseData = {
+        ...result,
+        vehicle: {
+          availability_status: 'available'
+        }
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message,
+      data: responseData
+    })
+  } catch (error: any) {
+    console.error('Error updating booking status:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update booking status',
+      error: error.message
+    })
+  }
+}
+
 export const bookingController = {
   createBooking,
-  getAllBookings
+  getAllBookings,
+  updateBookingStatus
 }

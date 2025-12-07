@@ -14,5 +14,10 @@ router.get(
   verifyAuth('admin', 'customer'),
   bookingController.getAllBookings
 )
+router.put(
+  '/:bookingId',
+  verifyAuth('admin', 'customer'),
+  bookingController.updateBookingStatus
+)
 
 export const bookingRouter = router

@@ -65,7 +65,73 @@ const getAllBookingFromDB = async () => {
   return result.rows
 }
 
+const updateBookingStatusIntoDB = async (
+  id: string,
+  payload: Record<string, unknown>
+) => {
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+
+    const bookingResult = await client.query(
+      `SELECT * FROM bookings WHERE id = $1`,
+      [id]
+    )
+
+    if (bookingResult.rowCount === 0) {
+      return { success: false, message: 'Booking not found' }
+    }
+
+    const booking = bookingResult.rows[0]
+
+    if (payload.status === 'cancelled') {
+      const rentStartDate = new Date(booking.rent_start_date)
+      const currentDate = new Date()
+
+      if (rentStartDate <= currentDate) {
+        return {
+          success: false,
+          message: 'Booking cannot be cancelled after rent start'
+        }
+      }
+
+      await client.query(
+        `UPDATE vehicles SET availability_status = 'available' WHERE id = $1`,
+        [booking.vehicle_id]
+      )
+    } else if (payload.status === 'returned') {
+      await client.query(
+        `UPDATE vehicles SET availability_status = 'available' WHERE id = $1`,
+        [booking.vehicle_id]
+      )
+    }
+
+    let updateQuery = `UPDATE bookings SET status = $1`
+    const queryParams: any[] = [payload.status]
+
+    if (payload.status === 'returned' && payload.end_date) {
+      updateQuery += `, rent_end_date = $2`
+      queryParams.push(payload.end_date)
+    }
+
+    updateQuery += ` WHERE id = $${queryParams.length + 1} RETURNING *`
+    queryParams.push(id)
+
+    const result = await client.query(updateQuery, queryParams)
+
+    await client.query('COMMIT')
+    return result.rows[0]
+  } catch (error) {
+    await client.query('ROLLBACK')
+    console.error('Error updating booking:', error)
+    throw error
+  } finally {
+    client.release()
+  }
+}
+
 export const bookingServices = {
   createBookingInDB,
-  getAllBookingFromDB
+  getAllBookingFromDB,
+  updateBookingStatusIntoDB
 }
