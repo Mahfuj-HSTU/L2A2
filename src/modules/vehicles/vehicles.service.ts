@@ -74,6 +74,19 @@ const updatedVehicleIntoDb = async (
 }
 
 const deleteVehicleFromDb = async (id: string) => {
+  const vehicle = await getVehiclesByIdFromDb(id)
+  if (!vehicle) {
+    return {
+      success: false,
+      message: 'Vehicle not found'
+    }
+  }
+  if (vehicle.availability_status === 'booked') {
+    return {
+      success: false,
+      message: "Vehicle is booked, can't delete"
+    }
+  }
   const result = await pool.query(`DELETE FROM vehicles WHERE id = $1`, [id])
   if (result.rowCount === 0) {
     return {
